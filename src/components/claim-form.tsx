@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useEffect, useState, useRef, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -40,7 +40,7 @@ function SubmitButton() {
 }
 
 export function ClaimForm() {
-  const [state, formAction] = useFormState(handleClaimVerification, initialState);
+  const [state, formAction] = useActionState(handleClaimVerification, initialState);
   const { toast } = useToast();
   const [imageIsLoading, setImageIsLoading] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
