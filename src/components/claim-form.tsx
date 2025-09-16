@@ -88,7 +88,7 @@ export function ClaimForm() {
             title: "Success",
             description: "Your claim has been verified.",
             variant: "default",
-            className: "bg-accent text-accent-foreground"
+            className: "bg-green-600 text-white border-green-600"
         });
     }
   }, [state, speechError, toast]);
@@ -97,7 +97,7 @@ export function ClaimForm() {
     if (state.formKey > (initialState.formKey ?? 0)) {
         form.reset();
     }
-  }, [state.formKey, form]);
+  }, [state.formK, form]);
 
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {

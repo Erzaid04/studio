@@ -14,7 +14,7 @@ const getTruthfulnessInfo = (truthfulness: string): { badge: React.ReactNode; de
   if (lowerTruth.includes('true') && !lowerTruth.includes('partially') && !lowerTruth.includes('false')) {
     return {
       badge: (
-        <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white">
+        <Badge variant="default" className="bg-green-600 hover:bg-green-700 text-white">
           <CheckCircle2 className="mr-2 h-4 w-4" /> True
         </Badge>
       ),
