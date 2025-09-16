@@ -2,7 +2,7 @@ import type { VerifyHealthClaimOutput } from '@/ai/flows/verify-health-claim';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle2, AlertTriangle, Lightbulb, BookOpen, ExternalLink, Activity, Volume2, Loader2 } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Lightbulb, BookOpen, ExternalLink, Activity, Volume2, Loader2, ShieldCheck, ShieldX } from 'lucide-react';
 import { Button } from './ui/button';
 import { useState, useRef, useEffect } from 'react';
 
@@ -28,7 +28,7 @@ const getTruthfulnessInfo = (truthfulness?: string): { badge: React.ReactNode; d
     return {
       badge: (
         <Badge variant="default" className="bg-green-600 hover:bg-green-700 text-white">
-          <CheckCircle2 className="mr-2 h-4 w-4" /> True
+          <ShieldCheck className="mr-2 h-4 w-4" /> Verified Claim
         </Badge>
       ),
       description: truthfulness,
@@ -38,7 +38,7 @@ const getTruthfulnessInfo = (truthfulness?: string): { badge: React.ReactNode; d
     return {
       badge: (
         <Badge variant="destructive">
-          <AlertTriangle className="mr-2 h-4 w-4" /> False
+          <ShieldX className="mr-2 h-4 w-4" /> Debunked Myth
         </Badge>
       ),
       description: truthfulness,
@@ -47,7 +47,7 @@ const getTruthfulnessInfo = (truthfulness?: string): { badge: React.ReactNode; d
   return {
     badge: (
       <Badge variant="secondary" className="bg-yellow-500 hover:bg-yellow-600 text-white">
-        <AlertTriangle className="mr-2 h-4 w-4" /> Nuanced
+        <AlertTriangle className="mr-2 h-4 w-4" /> Unproven Claim
       </Badge>
     ),
     description: truthfulness,
