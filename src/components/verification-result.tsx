@@ -8,7 +8,17 @@ type VerificationResultProps = {
   result: VerifyHealthClaimOutput;
 };
 
-const getTruthfulnessInfo = (truthfulness: string): { badge: React.ReactNode; description: string } => {
+const getTruthfulnessInfo = (truthfulness?: string): { badge: React.ReactNode; description: string } => {
+    if (!truthfulness) {
+        return {
+          badge: (
+            <Badge variant="secondary" className="bg-yellow-500 hover:bg-yellow-600 text-white">
+              <AlertTriangle className="mr-2 h-4 w-4" /> Not Available
+            </Badge>
+          ),
+          description: "The AI could not determine the truthfulness of this claim.",
+        };
+      }
   const lowerTruth = truthfulness.toLowerCase();
 
   if (lowerTruth.includes('true') && !lowerTruth.includes('partially') && !lowerTruth.includes('false')) {
@@ -45,6 +55,8 @@ export function VerificationResult({ result }: VerificationResultProps) {
   const { truthfulness, tips, solution, sources } = result.verificationResult;
   const { badge, description } = getTruthfulnessInfo(truthfulness);
 
+  const fallbackText = "No information provided.";
+
   return (
     <div className="space-y-8 animate-in fade-in-0 duration-500">
       <Card className="shadow-lg">
@@ -71,7 +83,7 @@ export function VerificationResult({ result }: VerificationResultProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="prose prose-sm max-w-none text-muted-foreground">
-            <p>{tips}</p>
+            <p>{tips || fallbackText}</p>
           </CardContent>
         </Card>
 
@@ -83,7 +95,7 @@ export function VerificationResult({ result }: VerificationResultProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="prose prose-sm max-w-none text-muted-foreground">
-            <p>{solution}</p>
+            <p>{solution || fallbackText}</p>
           </CardContent>
         </Card>
       </div>
@@ -96,22 +108,26 @@ export function VerificationResult({ result }: VerificationResultProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-4">
-            {sources.map((source, index) => (
-              <li key={index}>
-                <a
-                  href={source}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-2 text-primary hover:underline"
-                >
-                  <ExternalLink className="h-4 w-4 shrink-0 opacity-70 group-hover:opacity-100" />
-                  <span className="truncate">{source}</span>
-                </a>
-                {index < sources.length -1 && <Separator className="mt-4" />}
-              </li>
-            ))}
-          </ul>
+            {sources && sources.length > 0 ? (
+                <ul className="space-y-4">
+                    {sources.map((source, index) => (
+                    <li key={index}>
+                        <a
+                        href={source}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center gap-2 text-primary hover:underline"
+                        >
+                        <ExternalLink className="h-4 w-4 shrink-0 opacity-70 group-hover:opacity-100" />
+                        <span className="truncate">{source}</span>
+                        </a>
+                        {index < sources.length -1 && <Separator className="mt-4" />}
+                    </li>
+                    ))}
+                </ul>
+            ) : (
+                <p className="text-muted-foreground">{fallbackText}</p>
+            )}
         </CardContent>
       </Card>
     </div>

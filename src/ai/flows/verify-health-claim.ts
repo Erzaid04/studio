@@ -18,10 +18,10 @@ const VerifyHealthClaimInputSchema = z.object({
 export type VerifyHealthClaimInput = z.infer<typeof VerifyHealthClaimInputSchema>;
 
 const VerificationResultSchema = z.object({
-  truthfulness: z.string().describe('An assessment of the claim truthfulness (e.g., true, false, partially true).'),
-  tips: z.string().describe('Helpful tips related to the claim.'),
-  solution: z.string().describe('Suggested solutions or actions related to the claim.'),
-  sources: z.array(z.string()).describe('A list of URLs to trusted medical databases or sources.'),
+  truthfulness: z.string().optional().describe('An assessment of the claim truthfulness (e.g., true, false, partially true).'),
+  tips: z.string().optional().describe('Helpful tips related to the claim.'),
+  solution: z.string().optional().describe('Suggested solutions or actions related to the claim.'),
+  sources: z.array(z.string()).optional().describe('A list of URLs to trusted medical databases or sources.'),
 });
 
 const VerifyHealthClaimOutputSchema = z.object({
