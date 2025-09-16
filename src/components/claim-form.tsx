@@ -16,6 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { VerificationResult } from '@/components/verification-result';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { Upload, Mic, MicOff, Loader2 } from 'lucide-react';
 
 const claimSchema = z.object({
@@ -28,7 +29,7 @@ const initialState: ClaimVerificationState = { formKey: 0 };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" size="lg" className="w-full" disabled={pending}>
+    <Button type="submit" size="lg" className="w-full font-semibold" disabled={pending}>
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Verifying...
@@ -53,10 +54,10 @@ export function ClaimForm({ language, setLanguage }: ClaimFormProps) {
     resolver: zodResolver(claimSchema),
     defaultValues: {
       claim: '',
-      language: 'en',
+      language: language,
     },
   });
-
+  
   useEffect(() => {
     form.setValue('language', language);
   }, [language, form]);
@@ -103,9 +104,9 @@ export function ClaimForm({ language, setLanguage }: ClaimFormProps) {
   
   useEffect(() => {
     if (state.formKey > (initialState.formKey ?? 0)) {
-        form.reset();
+        form.reset({ claim: '', language });
     }
-  }, [state.formKey, form]);
+  }, [state.formKey, form, language]);
 
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,79 +152,89 @@ export function ClaimForm({ language, setLanguage }: ClaimFormProps) {
   }
 
   return (
-    <div className="space-y-12">
-      <Card className="shadow-lg border-2 border-primary/20">
-        <CardContent className="p-8">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="claim"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg font-headline">Enter Health Claim</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Textarea
-                          placeholder="e.g., 'Drinking turmeric milk daily boosts immunity...'"
-                          className="min-h-[140px] text-base resize-none pr-24"
-                          {...field}
-                        />
-                         <div className="absolute top-1/2 right-4 -translate-y-1/2 flex items-center gap-2">
-                           {hasRecognitionSupport && (
-                            <button
-                                type="button"
-                                onClick={handleMicClick}
-                                className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
-                                ${isListening ? 'bg-destructive/80 scale-105 shadow-md' : 'bg-primary/10 hover:bg-primary/20'}`}
-                            >
-                                {isListening ? (
-                                    <MicOff className="h-6 w-6 text-destructive" />
-                                ) : (
-                                    <Mic className="h-6 w-6 text-primary" />
-                                )}
-                                <span className="sr-only">{isListening ? 'Stop Listening' : 'Record Voice'}</span>
-                            </button>
-                           )}
+    <div className="space-y-6 pt-4">
+      {!state?.result && (
+        <Card className="border-none shadow-none">
+          <CardContent className="p-0">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6">
+                <div className="flex justify-end">
+                    <LanguageSwitcher language={language} setLanguage={setLanguage} />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="claim"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="sr-only">Enter Health Claim</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Textarea
+                            placeholder="e.g., 'Drinking turmeric milk daily boosts immunity...'"
+                            className="min-h-[140px] text-base resize-none pr-16"
+                            {...field}
+                          />
+                           <div className="absolute top-3 right-3 flex items-center gap-2">
+                             {hasRecognitionSupport && (
+                              <button
+                                  type="button"
+                                  onClick={handleMicClick}
+                                  className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300
+                                  ${isListening ? 'bg-red-500/90' : 'bg-primary/80 hover:bg-primary'}`}
+                              >
+                                  {isListening ? (
+                                      <MicOff className="h-5 w-5 text-white" />
+                                  ) : (
+                                      <Mic className="h-5 w-5 text-white" />
+                                  )}
+                                  <span className="sr-only">{isListening ? 'Stop Listening' : 'Record Voice'}</span>
+                              </button>
+                             )}
+                          </div>
                         </div>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex flex-wrap items-center gap-4">
-                 <p className="text-sm text-muted-foreground font-medium">Or, upload an image of the claim:</p>
-                 <Button type="button" variant="outline" onClick={() => imageInputRef.current?.click()} disabled={imageIsLoading}>
-                  {imageIsLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Upload className="mr-2 h-4 w-4" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                  Upload Image
-                </Button>
-                <Input type="file" ref={imageInputRef} className="hidden" onChange={handleImageUpload} accept="image/*" />
-              </div>
+                />
+                
+                <div className="relative flex items-center">
+                  <div className="flex-grow border-t border-gray-300"></div>
+                  <span className="flex-shrink mx-4 text-sm text-gray-500">OR</span>
+                  <div className="flex-grow border-t border-gray-300"></div>
+                </div>
 
-              <FormField
-                control={form.control}
-                name="language"
-                render={({ field }) => (
-                  <FormItem className="hidden">
-                    <FormControl>
-                        <Input {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              
-              <SubmitButton />
-              
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                   <Button type="button" variant="outline" className="w-full text-base" onClick={() => imageInputRef.current?.click()} disabled={imageIsLoading}>
+                    {imageIsLoading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="mr-2 h-4 w-4" />
+                    )}
+                    Upload an Image
+                  </Button>
+                  <Input type="file" ref={imageInputRef} className="hidden" onChange={handleImageUpload} accept="image/*" />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="language"
+                  render={({ field }) => (
+                    <FormItem className="hidden">
+                      <FormControl>
+                          <Input {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <SubmitButton />
+                
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      )}
       
       {state?.result && (
           <VerificationResult result={state.result} audioDataUri={state.audioDataUri} />
