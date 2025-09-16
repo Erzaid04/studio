@@ -143,6 +143,27 @@ export default function Home() {
           </Card>
         </div>
       </div>
+       <div className="bg-gradient-to-r from-primary to-accent text-primary-foreground py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-headline font-bold mb-4">
+            Don't Let Your Loved Ones Be The Next Victim
+          </h2>
+          <p className="text-lg opacity-90 max-w-3xl mx-auto mb-8">
+            Try Ayush Shield today and become your family's trusted health guardian. Share it with your parents and on your family WhatsApp group now!
+          </p>
+          <Button
+            size="lg"
+            variant="secondary"
+            className="bg-white text-primary hover:bg-white/90 font-bold text-lg shadow-lg"
+          >
+            <Shield className="mr-2 h-5 w-5" />
+            Protect Your Family Now
+          </Button>
+           <p className="text-sm mt-4 opacity-80">
+            Join thousands of families already protected by Ayush Shield
+          </p>
+        </div>
+      </div>
     </>
   );
 }
