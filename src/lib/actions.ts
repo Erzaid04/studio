@@ -3,9 +3,11 @@
 import { z } from 'zod';
 import { analyzeImageForHealthClaim, AnalyzeImageForHealthClaimOutput } from '@/ai/flows/analyze-image-for-health-claim';
 import { verifyHealthClaim, VerifyHealthClaimOutput } from '@/ai/flows/verify-health-claim';
+import { textToSpeech } from '@/ai/flows/text-to-speech';
 
 export type ClaimVerificationState = {
   result?: VerifyHealthClaimOutput;
+  audioDataUri?: string;
   error?: string;
   formKey: number;
 };
@@ -32,6 +34,7 @@ export async function handleClaimVerification(
         ...prevState,
         error: errorMessage,
         result: undefined,
+        audioDataUri: undefined,
       };
     }
     
@@ -40,10 +43,23 @@ export async function handleClaimVerification(
     const result = await verifyHealthClaim({ claim, language });
     
     if (!result || !result.verificationResult) {
-      return { ...prevState, error: 'The AI could not process the claim. Please try again.', result: undefined, };
+      return { ...prevState, error: 'The AI could not process the claim. Please try again.', result: undefined, audioDataUri: undefined };
     }
 
-    return { result, formKey: (prevState.formKey ?? 0) + 1, error: undefined };
+    const textToSpeak = `
+      Truthfulness: ${result.verificationResult.truthfulness}.
+      Tips: ${result.verificationResult.tips}.
+      Solution: ${result.verificationResult.solution}.
+    `;
+
+    const audioResult = await textToSpeech(textToSpeak);
+    
+    return { 
+      result, 
+      audioDataUri: audioResult?.media,
+      formKey: (prevState.formKey ?? 0) + 1, 
+      error: undefined 
+    };
 
   } catch (error) {
     console.error(error);
@@ -52,6 +68,7 @@ export async function handleClaimVerification(
       ...prevState,
       error: `An unexpected error occurred: ${errorMessage}. Please try again later.`,
       result: undefined,
+      audioDataUri: undefined,
     };
   }
 }

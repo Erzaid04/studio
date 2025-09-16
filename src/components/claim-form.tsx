@@ -87,7 +87,8 @@ export function ClaimForm() {
         toast({
             title: "Success",
             description: "Your claim has been verified.",
-            className: "bg-green-500 text-white"
+            variant: "default",
+            className: "bg-accent text-accent-foreground"
         });
     }
   }, [state, speechError, toast]);
@@ -230,7 +231,7 @@ export function ClaimForm() {
       </Card>
       
       {state?.result && (
-          <VerificationResult result={state.result} />
+          <VerificationResult result={state.result} audioDataUri={state.audioDataUri} />
       )}
     </div>
   );

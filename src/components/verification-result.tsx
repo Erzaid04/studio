@@ -2,10 +2,13 @@ import type { VerifyHealthClaimOutput } from '@/ai/flows/verify-health-claim';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle2, AlertTriangle, Lightbulb, BookOpen, ExternalLink, Activity } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Lightbulb, BookOpen, ExternalLink, Activity, Volume2, Loader2 } from 'lucide-react';
+import { Button } from './ui/button';
+import { useState, useRef, useEffect } from 'react';
 
 type VerificationResultProps = {
   result: VerifyHealthClaimOutput;
+  audioDataUri?: string;
 };
 
 const getTruthfulnessInfo = (truthfulness?: string): { badge: React.ReactNode; description: string } => {
@@ -51,21 +54,67 @@ const getTruthfulnessInfo = (truthfulness?: string): { badge: React.ReactNode; d
     };
 };
 
-export function VerificationResult({ result }: VerificationResultProps) {
+export function VerificationResult({ result, audioDataUri }: VerificationResultProps) {
   const { truthfulness, tips, solution, sources } = result.verificationResult;
   const { badge, description } = getTruthfulnessInfo(truthfulness);
 
   const fallbackText = "No information provided.";
+
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const toggleAudio = () => {
+    if (audioRef.current) {
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play();
+        }
+    }
+  };
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+        const handlePlay = () => setIsPlaying(true);
+        const handlePause = () => setIsPlaying(false);
+        const handleEnded = () => setIsPlaying(false);
+        
+        audio.addEventListener('play', handlePlay);
+        audio.addEventListener('pause', handlePause);
+        audio.addEventListener('ended', handleEnded);
+
+        return () => {
+            audio.removeEventListener('play', handlePlay);
+            audio.removeEventListener('pause', handlePause);
+            audio.removeEventListener('ended', handleEnded);
+        }
+    }
+  }, [audioRef])
+
 
   return (
     <div className="space-y-8 animate-in fade-in-0 duration-500">
       <Card className="shadow-lg">
         <CardHeader>
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-            <CardTitle className="font-headline flex items-center gap-3 text-2xl">
-              <Activity className="h-7 w-7 text-primary" />
-              Verification Result
-            </CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle className="font-headline flex items-center gap-3 text-2xl">
+                <Activity className="h-7 w-7 text-primary" />
+                Verification Result
+              </CardTitle>
+              {audioDataUri ? (
+                <>
+                  <Button onClick={toggleAudio} size="icon" variant="ghost">
+                    <Volume2 className={`h-6 w-6 text-primary ${isPlaying ? 'animate-pulse' : ''}`} />
+                    <span className="sr-only">Play audio result</span>
+                  </Button>
+                  <audio ref={audioRef} src={audioDataUri} />
+                </>
+              ) : (
+                <Loader2 className="h-6 w-6 text-primary/50 animate-spin" />
+              )}
+            </div>
             {badge}
           </div>
         </CardHeader>
