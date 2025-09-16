@@ -87,8 +87,7 @@ export function ClaimForm() {
         toast({
             title: "Success",
             description: "Your claim has been verified.",
-            variant: "default",
-            className: "bg-green-600 text-white border-green-600"
+            className: "bg-green-500 text-white"
         });
     }
   }, [state, speechError, toast]);
@@ -97,7 +96,7 @@ export function ClaimForm() {
     if (state.formKey > (initialState.formKey ?? 0)) {
         form.reset();
     }
-  }, [state.formK, form]);
+  }, [state.formKey, form]);
 
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,13 +133,20 @@ export function ClaimForm() {
       startListening();
     }
   };
+  
+  const onFormSubmit = (data: z.infer<typeof claimSchema>) => {
+    const formData = new FormData();
+    formData.append('claim', data.claim);
+    formData.append('language', data.language);
+    formAction(formData);
+  }
 
   return (
     <div className="space-y-12">
       <Card className="shadow-lg">
         <CardContent className="p-6">
           <Form {...form}>
-            <form action={form.handleSubmit(() => formAction(new FormData(form.control._formElement!)))} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="claim"

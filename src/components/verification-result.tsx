@@ -33,12 +33,12 @@ const getTruthfulnessInfo = (truthfulness: string): { badge: React.ReactNode; de
   }
   return {
     badge: (
-      <Badge variant="secondary" className="bg-amber-500 hover:bg-amber-600 text-amber-50">
+      <Badge variant="secondary" className="bg-yellow-500 hover:bg-yellow-600 text-white">
         <AlertTriangle className="mr-2 h-4 w-4" /> Nuanced
       </Badge>
     ),
     description: truthfulness,
-  };
+    };
 };
 
 export function VerificationResult({ result }: VerificationResultProps) {
@@ -58,7 +58,7 @@ export function VerificationResult({ result }: VerificationResultProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-base text-slate-700">{description}</p>
+          <p className="text-base text-foreground/80">{description}</p>
         </CardContent>
       </Card>
 
@@ -70,7 +70,7 @@ export function VerificationResult({ result }: VerificationResultProps) {
               Helpful Tips
             </CardTitle>
           </CardHeader>
-          <CardContent className="prose prose-sm max-w-none text-slate-600">
+          <CardContent className="prose prose-sm max-w-none text-muted-foreground">
             <p>{tips}</p>
           </CardContent>
         </Card>
@@ -82,7 +82,7 @@ export function VerificationResult({ result }: VerificationResultProps) {
               Suggested Solution
             </CardTitle>
           </CardHeader>
-          <CardContent className="prose prose-sm max-w-none text-slate-600">
+          <CardContent className="prose prose-sm max-w-none text-muted-foreground">
             <p>{solution}</p>
           </CardContent>
         </Card>
