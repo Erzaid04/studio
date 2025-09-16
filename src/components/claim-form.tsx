@@ -156,46 +156,45 @@ export function ClaimForm({ language, setLanguage }: ClaimFormProps) {
         <CardContent className="p-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6">
-               <div className="flex flex-col sm:flex-row items-center gap-6">
-                <div className="flex-grow w-full">
-                    <FormField
-                    control={form.control}
-                    name="claim"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-lg font-headline">Enter Health Claim</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="e.g., 'Drinking turmeric milk daily boosts immunity...' or use the mic"
-                            className="min-h-[120px] text-base resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {hasRecognitionSupport && (
-                  <div className="flex-shrink-0">
-                    <button
-                      type="button"
-                      onClick={handleMicClick}
-                      className={`relative w-28 h-28 rounded-full flex items-center justify-center transition-all duration-300
-                        ${isListening ? 'bg-destructive/80 scale-105 shadow-xl' : 'bg-primary hover:bg-primary/90'}`}
-                    >
-                      {isListening ? (
-                          <MicOff className="h-12 w-12 text-primary-foreground animate-pulse" />
-                      ) : (
-                          <Mic className="h-12 w-12 text-primary-foreground" />
-                      )}
-                      <span className="sr-only">{isListening ? 'Stop Listening' : 'Record Voice'}</span>
-                    </button>
-                  </div>
+              <FormField
+                control={form.control}
+                name="claim"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-headline">Enter Health Claim</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Textarea
+                          placeholder="e.g., 'Drinking turmeric milk daily boosts immunity...'"
+                          className="min-h-[140px] text-base resize-none pr-24"
+                          {...field}
+                        />
+                         <div className="absolute top-1/2 right-4 -translate-y-1/2 flex items-center gap-2">
+                           {hasRecognitionSupport && (
+                            <button
+                                type="button"
+                                onClick={handleMicClick}
+                                className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
+                                ${isListening ? 'bg-destructive/80 scale-105 shadow-md' : 'bg-primary/10 hover:bg-primary/20'}`}
+                            >
+                                {isListening ? (
+                                    <MicOff className="h-6 w-6 text-destructive" />
+                                ) : (
+                                    <Mic className="h-6 w-6 text-primary" />
+                                )}
+                                <span className="sr-only">{isListening ? 'Stop Listening' : 'Record Voice'}</span>
+                            </button>
+                           )}
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
+              />
               
               <div className="flex flex-wrap items-center gap-4">
+                 <p className="text-sm text-muted-foreground font-medium">Or, upload an image of the claim:</p>
                  <Button type="button" variant="outline" onClick={() => imageInputRef.current?.click()} disabled={imageIsLoading}>
                   {imageIsLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
