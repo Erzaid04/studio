@@ -15,7 +15,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { VerificationResult } from '@/components/verification-result';
 import { Upload, Mic, MicOff, Loader2 } from 'lucide-react';
 
@@ -39,7 +38,12 @@ function SubmitButton() {
   );
 }
 
-export function ClaimForm() {
+type ClaimFormProps = {
+    language: 'en' | 'hi';
+    setLanguage: (lang: 'en' | 'hi') => void;
+}
+
+export function ClaimForm({ language, setLanguage }: ClaimFormProps) {
   const [state, formAction] = useActionState(handleClaimVerification, initialState);
   const { toast } = useToast();
   const [imageIsLoading, setImageIsLoading] = useState(false);
@@ -53,7 +57,9 @@ export function ClaimForm() {
     },
   });
 
-  const language = form.watch('language');
+  useEffect(() => {
+    form.setValue('language', language);
+  }, [language, form]);
 
   const {
     isListening,
@@ -149,24 +155,45 @@ export function ClaimForm() {
       <Card className="shadow-lg border-2 border-primary/20">
         <CardContent className="p-8">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-8">
-              <FormField
-                control={form.control}
-                name="claim"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg font-headline">Enter Health Claim</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="e.g., 'Drinking turmeric milk daily boosts immunity...'"
-                        className="min-h-[120px] text-base"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+            <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6">
+               <div className="flex flex-col sm:flex-row items-center gap-6">
+                <div className="flex-grow w-full">
+                    <FormField
+                    control={form.control}
+                    name="claim"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-lg font-headline">Enter Health Claim</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="e.g., 'Drinking turmeric milk daily boosts immunity...' or use the mic"
+                            className="min-h-[120px] text-base resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                {hasRecognitionSupport && (
+                  <div className="flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleMicClick}
+                      className={`relative w-28 h-28 rounded-full flex items-center justify-center transition-all duration-300
+                        ${isListening ? 'bg-destructive/80 scale-105 shadow-xl' : 'bg-primary hover:bg-primary/90'}`}
+                    >
+                      {isListening ? (
+                          <MicOff className="h-12 w-12 text-primary-foreground animate-pulse" />
+                      ) : (
+                          <Mic className="h-12 w-12 text-primary-foreground" />
+                      )}
+                      <span className="sr-only">{isListening ? 'Stop Listening' : 'Record Voice'}</span>
+                    </button>
+                  </div>
                 )}
-              />
+              </div>
               
               <div className="flex flex-wrap items-center gap-4">
                  <Button type="button" variant="outline" onClick={() => imageInputRef.current?.click()} disabled={imageIsLoading}>
@@ -178,50 +205,16 @@ export function ClaimForm() {
                   Upload Image
                 </Button>
                 <Input type="file" ref={imageInputRef} className="hidden" onChange={handleImageUpload} accept="image/*" />
-
-                {hasRecognitionSupport && (
-                  <Button type="button" variant="outline" onClick={handleMicClick} className={isListening ? 'text-destructive border-destructive' : ''}>
-                    {isListening ? (
-                       <>
-                        <MicOff className="mr-2 h-4 w-4 animate-pulse" /> Listening...
-                       </>
-                    ) : (
-                      <>
-                        <Mic className="mr-2 h-4 w-4" /> Record Voice
-                      </>
-                    )}
-                  </Button>
-                )}
               </div>
-              
 
               <FormField
                 control={form.control}
                 name="language"
                 render={({ field }) => (
-                  <FormItem className="space-y-4">
-                    <FormLabel className="font-headline">Claim Language</FormLabel>
+                  <FormItem className="hidden">
                     <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex items-center gap-6"
-                      >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="en" />
-                          </FormControl>
-                          <FormLabel className="font-normal text-base">English</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="hi" />
-                          </FormControl>
-                          <FormLabel className="font-normal text-base">Hindi</FormLabel>
-                        </FormItem>
-                      </RadioGroup>
+                        <Input {...field} />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
