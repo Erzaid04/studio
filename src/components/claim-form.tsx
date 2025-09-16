@@ -90,7 +90,7 @@ export function ClaimForm() {
             title: "Success",
             description: "Your claim has been verified.",
             variant: "default",
-            className: "bg-accent text-accent-foreground"
+            className: "bg-green-600 text-white border-green-600"
         });
     }
   }, [state, speechError, toast]);
@@ -146,16 +146,16 @@ export function ClaimForm() {
 
   return (
     <div className="space-y-12">
-      <Card className="shadow-lg">
-        <CardContent className="p-6">
+      <Card className="shadow-lg border-2 border-primary/20">
+        <CardContent className="p-8">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
                 name="claim"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg font-headline">Health Claim</FormLabel>
+                    <FormLabel className="text-lg font-headline">Enter Health Claim</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="e.g., 'Drinking turmeric milk daily boosts immunity...'"
@@ -167,9 +167,9 @@ export function ClaimForm() {
                   </FormItem>
                 )}
               />
-
+              
               <div className="flex flex-wrap items-center gap-4">
-                 <Button type="button" size="sm" variant="outline" onClick={() => imageInputRef.current?.click()} disabled={imageIsLoading}>
+                 <Button type="button" variant="outline" onClick={() => imageInputRef.current?.click()} disabled={imageIsLoading}>
                   {imageIsLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
@@ -180,10 +180,10 @@ export function ClaimForm() {
                 <Input type="file" ref={imageInputRef} className="hidden" onChange={handleImageUpload} accept="image/*" />
 
                 {hasRecognitionSupport && (
-                  <Button type="button" size="sm" variant="outline" onClick={handleMicClick} className={isListening ? 'border-destructive' : ''}>
+                  <Button type="button" variant="outline" onClick={handleMicClick} className={isListening ? 'text-destructive border-destructive' : ''}>
                     {isListening ? (
                        <>
-                        <MicOff className="mr-2 h-4 w-4 text-destructive animate-pulse" /> Stop Recording
+                        <MicOff className="mr-2 h-4 w-4 animate-pulse" /> Listening...
                        </>
                     ) : (
                       <>
@@ -193,12 +193,13 @@ export function ClaimForm() {
                   </Button>
                 )}
               </div>
+              
 
               <FormField
                 control={form.control}
                 name="language"
                 render={({ field }) => (
-                  <FormItem className="space-y-3">
+                  <FormItem className="space-y-4">
                     <FormLabel className="font-headline">Claim Language</FormLabel>
                     <FormControl>
                       <RadioGroup
@@ -210,13 +211,13 @@ export function ClaimForm() {
                           <FormControl>
                             <RadioGroupItem value="en" />
                           </FormControl>
-                          <FormLabel className="font-normal">English</FormLabel>
+                          <FormLabel className="font-normal text-base">English</FormLabel>
                         </FormItem>
                         <FormItem className="flex items-center space-x-3 space-y-0">
                           <FormControl>
                             <RadioGroupItem value="hi" />
                           </FormControl>
-                          <FormLabel className="font-normal">Hindi</FormLabel>
+                          <FormLabel className="font-normal text-base">Hindi</FormLabel>
                         </FormItem>
                       </RadioGroup>
                     </FormControl>
