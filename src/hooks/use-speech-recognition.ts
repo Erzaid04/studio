@@ -2,6 +2,10 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 
+type SpeechRecognitionOptions = {
+    lang?: string;
+}
+
 type SpeechRecognitionHook = {
   isListening: boolean;
   transcript: string;
@@ -11,7 +15,7 @@ type SpeechRecognitionHook = {
   error: string | null;
 };
 
-export function useSpeechRecognition(): SpeechRecognitionHook {
+export function useSpeechRecognition(options?: SpeechRecognitionOptions): SpeechRecognitionHook {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +40,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
     recognitionRef.current = recognition;
     recognition.continuous = false; // Stop after a pause
     recognition.interimResults = true;
-    recognition.lang = 'en-US';
+    recognition.lang = options?.lang || 'en-US';
 
     recognition.onresult = (event) => {
       const currentTranscript = Array.from(event.results)
@@ -44,10 +48,19 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
         .map(result => result.transcript)
         .join('');
       setTranscript(currentTranscript);
+      
+      // Basic end-of-speech detection
+      if (event.results[event.results.length - 1].isFinal) {
+        stopListening();
+      }
     };
 
     recognition.onerror = (event) => {
-      setError(`Speech recognition error: ${event.error}`);
+      if (event.error === 'no-speech') {
+        setError('No speech was detected. Please try again.');
+      } else {
+        setError(`Speech recognition error: ${event.error}`);
+      }
       setIsListening(false);
     };
 
@@ -59,7 +72,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
     return () => {
       stopListening();
     };
-  }, [stopListening]);
+  }, [stopListening, options?.lang]);
 
   const startListening = () => {
     if (recognitionRef.current && !isListening) {

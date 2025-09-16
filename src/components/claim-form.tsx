@@ -53,6 +53,8 @@ export function ClaimForm() {
     },
   });
 
+  const language = form.watch('language');
+
   const {
     isListening,
     transcript,
@@ -60,7 +62,7 @@ export function ClaimForm() {
     stopListening,
     hasRecognitionSupport,
     error: speechError,
-  } = useSpeechRecognition();
+  } = useSpeechRecognition({ lang: language === 'hi' ? 'hi-IN' : 'en-US' });
   
   useEffect(() => {
     if (transcript) {
@@ -178,14 +180,14 @@ export function ClaimForm() {
                 <Input type="file" ref={imageInputRef} className="hidden" onChange={handleImageUpload} accept="image/*" />
 
                 {hasRecognitionSupport && (
-                  <Button type="button" size="sm" variant="outline" onClick={handleMicClick}>
+                  <Button type="button" size="sm" variant="outline" onClick={handleMicClick} className={isListening ? 'border-destructive' : ''}>
                     {isListening ? (
                        <>
-                        <MicOff className="mr-2 h-4 w-4 text-destructive" /> Stop Listening
+                        <MicOff className="mr-2 h-4 w-4 text-destructive animate-pulse" /> Stop Recording
                        </>
                     ) : (
                       <>
-                        <Mic className="mr-2 h-4 w-4" /> Use Voice
+                        <Mic className="mr-2 h-4 w-4" /> Record Voice
                       </>
                     )}
                   </Button>
