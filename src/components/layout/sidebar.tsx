@@ -1,7 +1,22 @@
+
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ShieldIcon } from '@/components/icons';
 import { Home, ShieldCheck, History, Info, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const navItems = [
+  { href: '/', icon: Home, label: 'Home' },
+  { href: '/verify', icon: ShieldCheck, label: 'Verify Health Claims' },
+  { href: '#', icon: History, label: 'Verification History' },
+  { href: '#', icon: Info, label: 'About' },
+];
 
 export function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <aside className="w-64 bg-sidebar-DEFAULT text-sidebar-foreground p-6 flex flex-col justify-between border-r">
       <div>
@@ -21,30 +36,20 @@ export function Sidebar() {
           <div>
             <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Navigation</h2>
             <ul className="space-y-2">
-              <li>
-                <a href="#" className="flex items-center gap-3 py-2 px-3 rounded-md bg-secondary text-primary font-semibold">
-                  <Home className="h-5 w-5" />
-                  <span>Home</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center gap-3 py-2 px-3 rounded-md hover:bg-secondary">
-                  <ShieldCheck className="h-5 w-5" />
-                  <span>Verify Health Claims</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center gap-3 py-2 px-3 rounded-md hover:bg-secondary">
-                  <History className="h-5 w-5" />
-                  <span>Verification History</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center gap-3 py-2 px-3 rounded-md hover:bg-secondary">
-                  <Info className="h-5 w-5" />
-                  <span>About</span>
-                </a>
-              </li>
+              {navItems.map((item) => (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 py-2 px-3 rounded-md hover:bg-secondary",
+                      pathname === item.href && "bg-secondary text-primary font-semibold"
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </nav>

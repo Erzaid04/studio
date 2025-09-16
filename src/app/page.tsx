@@ -1,24 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
-import { ClaimForm } from '@/components/claim-form';
+import { Button } from '@/components/ui/button';
 import { CheckCircle, AlertTriangle, XCircle, Mic, Shield, Type } from 'lucide-react';
 
 export default function Home() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [language, setLanguage] = useState<'en' | 'hi'>('en');
+  const router = useRouter();
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const handleStartVerification = () => {
+    router.push('/verify');
+  };
 
   return (
     <>
@@ -42,7 +35,7 @@ export default function Home() {
             अपने परिवार को फर्जी स्वास्थ्य समाचारों से बचाएं
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Button size="lg" onClick={openModal} className="font-bold text-lg">
+            <Button size="lg" onClick={handleStartVerification} className="font-bold text-lg">
               <Mic className="mr-2 h-5 w-5" />
               Start Verification
             </Button>
@@ -75,18 +68,6 @@ export default function Home() {
             </Card>
           </div>
         </div>
-        
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-[650px]">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-headline">Verify a Health Claim</DialogTitle>
-              <DialogDescription>
-                Enter a claim below, upload an image, or use your voice. Our AI will verify it against trusted sources.
-              </DialogDescription>
-            </DialogHeader>
-            <ClaimForm language={language} setLanguage={setLanguage} />
-          </DialogContent>
-        </Dialog>
       </div>
       <div className="bg-background py-20 px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto">
@@ -155,6 +136,7 @@ export default function Home() {
             size="lg"
             variant="secondary"
             className="bg-white text-primary hover:bg-white/90 font-bold text-lg shadow-lg"
+            onClick={handleStartVerification}
           >
             <Shield className="mr-2 h-5 w-5" />
             Protect Your Family Now

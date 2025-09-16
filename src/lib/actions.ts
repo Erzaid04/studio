@@ -40,22 +40,28 @@ export async function handleClaimVerification(
     
     const { claim, language } = validatedFields.data;
 
-    const result = await verifyHealthClaim({ claim, language });
+    const [verificationResult, audioResult] = await Promise.all([
+        verifyHealthClaim({ claim, language }),
+        (async () => {
+            const result = await verifyHealthClaim({ claim, language });
+            if (result?.verificationResult) {
+                const textToSpeak = `
+                    Truthfulness: ${result.verificationResult.truthfulness || 'Not available'}.
+                    Tips: ${result.verificationResult.tips || 'Not available'}.
+                    Solution: ${result.verificationResult.solution || 'Not available'}.
+                `;
+                return textToSpeech(textToSpeak);
+            }
+            return null;
+        })()
+    ]);
     
-    if (!result || !result.verificationResult) {
+    if (!verificationResult || !verificationResult.verificationResult) {
       return { ...prevState, error: 'The AI could not process the claim. Please try again.', result: undefined, audioDataUri: undefined };
     }
-
-    const textToSpeak = `
-      Truthfulness: ${result.verificationResult.truthfulness}.
-      Tips: ${result.verificationResult.tips}.
-      Solution: ${result.verificationResult.solution}.
-    `;
-
-    const audioResult = await textToSpeech(textToSpeak);
     
     return { 
-      result, 
+      result: verificationResult, 
       audioDataUri: audioResult?.media,
       formKey: (prevState.formKey ?? 0) + 1, 
       error: undefined 
