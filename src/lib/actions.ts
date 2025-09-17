@@ -1,3 +1,4 @@
+
 'use server';
 
 import { z } from 'zod';
@@ -46,10 +47,10 @@ export async function handleClaimVerification(
       return { ...prevState, error: 'The AI could not process the claim. Please try again.', result: undefined, audioDataUri: undefined };
     }
 
+    const { truthfulness, solution } = verificationResult.verificationResult;
     const textToSpeak = `
-        Truthfulness: ${verificationResult.verificationResult.truthfulness || 'Not available'}.
-        Tips: ${verificationResult.verificationResult.tips || 'Not available'}.
-        Solution: ${verificationResult.verificationResult.solution || 'Not available'}.
+        The claim has been assessed as: ${truthfulness || 'Not available'}.
+        The suggested solution is: ${solution || 'No specific solution was provided.'}.
     `;
     const audioResult = await textToSpeech(textToSpeak);
     

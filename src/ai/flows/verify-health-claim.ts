@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -18,7 +19,7 @@ const VerifyHealthClaimInputSchema = z.object({
 export type VerifyHealthClaimInput = z.infer<typeof VerifyHealthClaimInputSchema>;
 
 const VerificationResultSchema = z.object({
-  truthfulness: z.string().optional().describe('An assessment of the claim truthfulness (e.g., true, false, partially true).'),
+  truthfulness: z.string().optional().describe('An assessment of the claim truthfulness (e.g., "Verified Claim", "Unproven Claim", "Debunked Myth").'),
   tips: z.string().optional().describe('Helpful tips related to the claim.'),
   solution: z.string().optional().describe('Suggested solutions or actions related to the claim.'),
   sources: z.array(z.string()).optional().describe('A list of URLs to trusted medical databases or sources.'),
@@ -45,12 +46,12 @@ Claim: "{{claim}}"
 Language of Claim: "{{language}}"
 
 Your task is to:
-1.  Assess the truthfulness of the claim (true, false, partially true, or nuanced).
+1.  Assess the truthfulness of the claim and classify it as "Verified Claim" (if true), "Debunked Myth" (if false), or "Unproven Claim" (if partially true or lacks evidence).
 2.  Provide helpful, actionable tips related to the health topic.
-3.  Suggest a clear solution or course of action.
-4.  List any trusted sources (as URLs) you used for verification.
+3.  Suggest a clear solution or course of action based on trusted sources.
+4.  List the full URLs of any trusted sources (like WHO, ICMR, Ministry of Ayush, verified medical journals) you used for verification.
 
-If any of the above cannot be determined, you must return an empty string or an empty array for the corresponding field. Do not omit any fields.
+Your response must be in the same language as the original claim. If any of the above cannot be determined, you must return an empty string or an empty array for the corresponding field. Do not omit any fields.
 `,
 });
 
