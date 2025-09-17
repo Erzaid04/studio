@@ -33,27 +33,30 @@ export async function analyzeImageForHealthClaim(
   return analyzeImageForHealthClaimFlow(input);
 }
 
-const analyzeImageForHealthClaimPrompt = ai.definePrompt({
-  name: 'analyzeImageForHealthClaimPrompt',
-  input: { schema: AnalyzeImageForHealthClaimInputSchema },
-  output: { schema: AnalyzeImageForHealthClaimOutputSchema },
-  model: 'googleai/gemini-2.5-flash',
-  prompt: `You are an AI assistant tasked with extracting text from images containing health claims.
-
-  Analyze the image provided and extract any text that represents a health claim.  Return ONLY the extracted text.
-
-  Image: {{media url=imageDataUri}}`,
-  
-});
-
 const analyzeImageForHealthClaimFlow = ai.defineFlow(
   {
     name: 'analyzeImageForHealthClaimFlow',
     inputSchema: AnalyzeImageForHealthClaimInputSchema,
     outputSchema: AnalyzeImageForHealthClaimOutputSchema,
   },
-  async input => {
-    const { output } = await analyzeImageForHealthClaimPrompt(input);
+  async ({ imageDataUri }) => {
+    const { output } = await ai.generate({
+      model: 'googleai/gemini-2.5-flash',
+      prompt: `You are an AI assistant tasked with extracting text from images containing health claims.
+
+      Analyze the image provided and extract any text that represents a health claim.  Return ONLY the extracted text.
+    
+      Image: {{media url=imageDataUri}}`,
+      input: {
+        imageDataUri
+      },
+      output: {
+        schema: AnalyzeImageForHealthClaimOutputSchema,
+      },
+      config: {
+        retries: 3
+      }
+    });
     return output!;
   }
 );
