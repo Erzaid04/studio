@@ -43,9 +43,8 @@ export async function analyzeImageForHealthClaim(
     throw new Error('Google Cloud service account credentials (GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY) are not set in environment variables.');
   }
 
-  // The 'eu-vision.googleapis.com' endpoint is generally available and a good default.
+  // Let the library choose the best endpoint.
   const clientOptions = {
-    apiEndpoint: 'eu-vision.googleapis.com',
     credentials,
   };
 
