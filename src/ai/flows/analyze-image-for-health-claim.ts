@@ -49,9 +49,7 @@ const analyzeImageForHealthClaimFlow = ai.defineFlow(
       output: {
         schema: AnalyzeImageForHealthClaimOutputSchema,
       },
-      config: {
-        retries: 3
-      }
+      retries: 3
     });
     return output!;
   }
