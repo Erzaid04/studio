@@ -1,8 +1,9 @@
+
 import type { VerifyHealthClaimOutput } from '@/ai/flows/verify-health-claim';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle2, AlertTriangle, Lightbulb, BookOpen, ExternalLink, Activity, Volume2, Loader2, ShieldCheck, ShieldX } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Lightbulb, BookOpen, ExternalLink, Activity, Volume2, Loader2, ShieldCheck, ShieldX, ShieldQuestion } from 'lucide-react';
 import { Button } from './ui/button';
 import { useState, useRef, useEffect } from 'react';
 
@@ -11,52 +12,50 @@ type VerificationResultProps = {
   audioDataUri?: string;
 };
 
-const getTruthfulnessInfo = (truthfulness?: string): { badge: React.ReactNode; description: string } => {
-    if (!truthfulness) {
-        return {
-          badge: (
-            <Badge variant="secondary" className="bg-yellow-500 hover:bg-yellow-600 text-white">
-              <AlertTriangle className="mr-2 h-4 w-4" /> Not Available
-            </Badge>
-          ),
-          description: "The AI could not determine the truthfulness of this claim.",
-        };
-      }
-  const lowerTruth = truthfulness.toLowerCase();
-
-  if (lowerTruth.includes('true') && !lowerTruth.includes('partially') && !lowerTruth.includes('false')) {
-    return {
-      badge: (
-        <Badge variant="default" className="bg-green-600 hover:bg-green-700 text-white">
-          <ShieldCheck className="mr-2 h-4 w-4" /> Verified Claim
-        </Badge>
-      ),
-      description: truthfulness,
-    };
-  }
-  if (lowerTruth.includes('false')) {
-    return {
-      badge: (
-        <Badge variant="destructive">
-          <ShieldX className="mr-2 h-4 w-4" /> Debunked Myth
-        </Badge>
-      ),
-      description: truthfulness,
-    };
-  }
-  return {
-    badge: (
-      <Badge variant="secondary" className="bg-yellow-500 hover:bg-yellow-600 text-white">
-        <AlertTriangle className="mr-2 h-4 w-4" /> Unproven Claim
-      </Badge>
-    ),
-    description: truthfulness,
-    };
+const getTruthfulnessInfo = (status?: string): { badge: React.ReactNode; description: string } => {
+    switch (status) {
+        case 'Verified Claim':
+            return {
+                badge: (
+                    <Badge variant="default" className="bg-green-600 hover:bg-green-700 text-white">
+                        <ShieldCheck className="mr-2 h-4 w-4" /> Verified Claim
+                    </Badge>
+                ),
+                description: "This claim is supported by scientific evidence from trusted sources."
+            };
+        case 'Debunked Myth':
+            return {
+                badge: (
+                    <Badge variant="destructive">
+                        <ShieldX className="mr-2 h-4 w-4" /> Debunked Myth
+                    </Badge>
+                ),
+                description: "This claim is contradicted by scientific evidence and may be harmful."
+            };
+        case 'Unproven Claim':
+            return {
+                badge: (
+                    <Badge variant="secondary" className="bg-yellow-500 hover:bg-yellow-600 text-white">
+                        <AlertTriangle className="mr-2 h-4 w-4" /> Unproven Claim
+                    </Badge>
+                ),
+                description: "There is not enough scientific evidence to support or refute this claim."
+            };
+        default:
+            return {
+                badge: (
+                    <Badge variant="secondary" className="bg-gray-500 hover:bg-gray-600 text-white">
+                        <ShieldQuestion className="mr-2 h-4 w-4" /> Not Applicable
+                    </Badge>
+                ),
+                description: "The provided text was not recognized as a verifiable health claim."
+            };
+    }
 };
 
 export function VerificationResult({ result, audioDataUri }: VerificationResultProps) {
-  const { truthfulness, tips, solution, sources } = result.verificationResult;
-  const { badge, description } = getTruthfulnessInfo(truthfulness);
+  const { status, truthfulness, tips, solution, sources } = result.verificationResult;
+  const { badge, description: statusDescription } = getTruthfulnessInfo(status);
 
   const fallbackText = "No information provided.";
 
@@ -119,7 +118,7 @@ export function VerificationResult({ result, audioDataUri }: VerificationResultP
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-base text-foreground/80">{description}</p>
+          <p className="text-lg font-semibold text-foreground mb-2">{truthfulness || statusDescription}</p>
         </CardContent>
       </Card>
 

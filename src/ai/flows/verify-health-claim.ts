@@ -19,10 +19,11 @@ const VerifyHealthClaimInputSchema = z.object({
 export type VerifyHealthClaimInput = z.infer<typeof VerifyHealthClaimInputSchema>;
 
 const VerificationResultSchema = z.object({
-  truthfulness: z.string().optional().describe('An assessment of the claim truthfulness (e.g., "Verified Claim", "Unproven Claim", "Debunked Myth").'),
-  tips: z.string().optional().describe('Helpful tips related to the claim.'),
-  solution: z.string().optional().describe('Suggested solutions or actions related to the claim.'),
-  sources: z.array(z.string()).optional().describe('A list of URLs to trusted medical databases or sources.'),
+  status: z.enum(['Verified Claim', 'Unproven Claim', 'Debunked Myth', 'Not Applicable']).describe('A strict classification of the claim: "Verified Claim" (true), "Debunked Myth" (false), "Unproven Claim" (lacks evidence), or "Not Applicable".'),
+  truthfulness: z.string().optional().describe('A one-sentence summary explaining the status of the claim.'),
+  tips: z.string().optional().describe('Helpful, actionable tips related to the health topic.'),
+  solution: z.string().optional().describe('A clear solution or course of action based on trusted sources.'),
+  sources: z.array(z.string()).optional().describe('A list of full URLs to trusted medical databases or sources.'),
 });
 
 const VerifyHealthClaimOutputSchema = z.object({
@@ -39,19 +40,20 @@ const verifyHealthClaimPrompt = ai.definePrompt({
   name: 'verifyHealthClaimPrompt',
   input: {schema: VerifyHealthClaimInputSchema},
   output: {schema: VerifyHealthClaimOutputSchema},
-  prompt: `You are a health expert responsible for verifying health claims against trusted medical databases. Your response must be structured according to the output schema.
+  prompt: `You are a health expert responsible for verifying health claims against trusted medical databases. Your response MUST be structured according to the output schema.
 
 The user has submitted a health claim for verification.
 Claim: "{{claim}}"
 Language of Claim: "{{language}}"
 
-Your task is to:
-1.  Assess the truthfulness of the claim and classify it as "Verified Claim" (if true), "Debunked Myth" (if false), or "Unproven Claim" (if partially true or lacks evidence).
-2.  Provide helpful, actionable tips related to the health topic.
-3.  Suggest a clear solution or course of action based on trusted sources.
-4.  List the full URLs of any trusted sources (like WHO, ICMR, Ministry of Ayush, verified medical journals) you used for verification.
+Your task is:
+1.  Analyze the claim and classify its status strictly as one of the following: "Verified Claim" (if scientifically true), "Debunked Myth" (if scientifically false), "Unproven Claim" (if there is not enough evidence), or "Not Applicable" (if the text is not a health claim).
+2.  Provide a concise, one-sentence summary for the 'truthfulness' field, explaining the classification.
+3.  Provide helpful, actionable tips for the 'tips' field.
+4.  Suggest a clear solution or course of action for the 'solution' field.
+5.  List the full URLs of any trusted sources (like WHO, ICMR, Ministry of Ayush, verified medical journals) you used for verification.
 
-Your response must be in the same language as the original claim. If any of the above cannot be determined, you must return an empty string or an empty array for the corresponding field. Do not omit any fields.
+Your entire response, including all fields, must be in the same language as the original claim. If any field cannot be determined, you must return an empty string or an empty array for the corresponding field. Do not omit any fields.
 `,
 });
 

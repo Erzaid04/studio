@@ -33,18 +33,21 @@ export async function analyzeImageForHealthClaim(
 ): Promise<AnalyzeImageForHealthClaimOutput> {
   const { imageDataUri } = AnalyzeImageForHealthClaimInputSchema.parse(input);
 
-  const apiKey = process.env.GOOGLE_VISION_API_KEY;
+  const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
+  // The private key needs to have its newlines properly escaped in the .env file
+  // but here we need to replace the literal `\n` with actual newlines.
+  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-  if (!apiKey) {
-    throw new Error('Google Cloud Vision API Key (GOOGLE_VISION_API_KEY) is not set in environment variables.');
+  if (!clientEmail || !privateKey) {
+    throw new Error('Google Cloud service account credentials (GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY) are not set in environment variables.');
   }
 
-  // Use API Key for authentication
-  const clientOptions = {
-    key: apiKey,
-  };
-
-  const client = new ImageAnnotatorClient(clientOptions);
+  const client = new ImageAnnotatorClient({
+    credentials: {
+      client_email: clientEmail,
+      private_key: privateKey,
+    },
+  });
 
   // Extracts the Base64 content from the data URI
   const base64Image = imageDataUri.split(';base64,').pop();
@@ -70,8 +73,8 @@ export async function analyzeImageForHealthClaim(
     }
 
     return { extractedText };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Google Cloud Vision API error:', error);
-    throw new Error('Failed to analyze image with Google Cloud Vision. Please check your API key and ensure the Vision API is enabled in your Google Cloud project.');
+    throw new Error(`Failed to analyze image with Google Cloud Vision: ${error.message || 'Please check your credentials and ensure the Vision API is enabled in your Google Cloud project.'}`);
   }
 }

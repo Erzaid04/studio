@@ -47,11 +47,16 @@ export async function handleClaimVerification(
       return { ...prevState, error: 'The AI could not process the claim. Please try again.', result: undefined, audioDataUri: undefined };
     }
 
-    const { truthfulness, solution } = verificationResult.verificationResult;
-    const textToSpeak = `
-        The claim has been assessed as: ${truthfulness || 'Not available'}.
-        The suggested solution is: ${solution || 'No specific solution was provided.'}.
-    `;
+    const { status, solution, truthfulness } = verificationResult.verificationResult;
+    
+    // Create a concise summary for text-to-speech
+    let textToSpeak = '';
+    if (language === 'hi') {
+        textToSpeak = `यह दावा ${status} है। ${solution || truthfulness || 'कोई विशेष समाधान प्रदान नहीं किया गया।'}`;
+    } else {
+        textToSpeak = `This claim is a ${status}. ${solution || truthfulness || 'No specific solution was provided.'}`;
+    }
+    
     const audioResult = await textToSpeech(textToSpeak);
     
     return { 
