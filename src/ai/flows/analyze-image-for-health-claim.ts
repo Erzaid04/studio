@@ -42,14 +42,12 @@ const analyzeImageForHealthClaimFlow = ai.defineFlow(
   async ({ imageDataUri }) => {
     const { output } = await ai.generate({
       model: 'googleai/gemini-2.5-flash',
-      prompt: `You are an AI assistant tasked with extracting text from images containing health claims.
+      prompt: [
+        {text: `You are an AI assistant tasked with extracting text from images containing health claims.
 
-      Analyze the image provided and extract any text that represents a health claim.  Return ONLY the extracted text.
-    
-      Image: {{media url=imageDataUri}}`,
-      input: {
-        imageDataUri
-      },
+      Analyze the image provided and extract any text that represents a health claim.  Return ONLY the extracted text.`},
+        {media: {url: imageDataUri}}
+      ],
       output: {
         schema: AnalyzeImageForHealthClaimOutputSchema,
       },
