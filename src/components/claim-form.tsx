@@ -16,7 +16,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Upload, Mic, Loader2, Type, Image as ImageIcon, Info } from 'lucide-react';
+import { Upload, Mic, Loader2, Type, Image as ImageIcon, Info, AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
 const claimSchema = z.object({
   claim: z.string().min(10, { message: 'Please enter a health claim with at least 10 characters.' }),
@@ -46,6 +47,7 @@ type ClaimFormProps = {
 export function ClaimForm({ language, setLanguage, formAction, state }: ClaimFormProps) {
   const { toast } = useToast();
   const [imageIsLoading, setImageIsLoading] = useState(false);
+  const [hasMicPermission, setHasMicPermission] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof claimSchema>>({
@@ -59,6 +61,20 @@ export function ClaimForm({ language, setLanguage, formAction, state }: ClaimFor
   useEffect(() => {
     form.setValue('language', language);
   }, [language, form]);
+
+  useEffect(() => {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(() => setHasMicPermission(true))
+      .catch(() => {
+        setHasMicPermission(false);
+        toast({
+            variant: 'destructive',
+            title: 'Microphone Access Denied',
+            description: 'Please enable microphone permissions in your browser settings for voice input.',
+        })
+      });
+  }, [toast]);
+
 
   const {
     isListening,
@@ -151,7 +167,7 @@ export function ClaimForm({ language, setLanguage, formAction, state }: ClaimFor
             <TabsTrigger value="image"><ImageIcon className="mr-2"/>Image</TabsTrigger>
         </TabsList>
         <Form {...form}>
-            <form action={formAction} className="space-y-6 pt-8">
+            <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6 pt-8">
                 <div className="flex justify-between items-center">
                     <LanguageSwitcher language={language} setLanguage={setLanguage} />
                     <Button variant="outline" size="sm">
@@ -163,26 +179,44 @@ export function ClaimForm({ language, setLanguage, formAction, state }: ClaimFor
                     <div className="flex flex-col items-center justify-center text-center py-8 px-4 h-[250px]">
                         {hasRecognitionSupport ? (
                             <>
-                                <button
-                                type="button"
-                                onClick={handleMicClick}
-                                className={`relative w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300
-                                ${isListening ? 'bg-red-500/20' : 'bg-primary/10'}`}
-                                >
-                                <span className={`absolute inset-0 rounded-full bg-primary/20 animate-ping ${!isListening && 'hidden'}`}></span>
-                                <span className={`w-20 h-20 rounded-full flex items-center justify-center
-                                    ${isListening ? 'bg-red-500 text-white' : 'bg-primary text-white'}`}>
-                                    <Mic className="h-10 w-10" />
-                                </span>
-                                </button>
-                                <p className="text-muted-foreground mt-6">
-                                    {isListening ? "Listening..." : "Press the microphone and start speaking"}
-                                </p>
-                                <p className="text-sm text-muted-foreground/80 mt-2">Example: "Does drinking lemon water help with weight loss?"</p>
-                                {transcript && <p className="mt-4 text-sm font-medium">"{transcript}"</p>}
+                                {hasMicPermission ? (
+                                    <>
+                                        <button
+                                        type="button"
+                                        onClick={handleMicClick}
+                                        className={`relative w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300
+                                        ${isListening ? 'bg-red-500/20' : 'bg-primary/10'}`}
+                                        >
+                                        <span className={`absolute inset-0 rounded-full bg-primary/20 animate-ping ${!isListening && 'hidden'}`}></span>
+                                        <span className={`w-20 h-20 rounded-full flex items-center justify-center
+                                            ${isListening ? 'bg-red-500 text-white' : 'bg-primary text-white'}`}>
+                                            <Mic className="h-10 w-10" />
+                                        </span>
+                                        </button>
+                                        <p className="text-muted-foreground mt-6">
+                                            {isListening ? "Listening..." : "Press the microphone and start speaking"}
+                                        </p>
+                                        <p className="text-sm text-muted-foreground/80 mt-2">Example: "Does drinking lemon water help with weight loss?"</p>
+                                        {transcript && <p className="mt-4 text-sm font-medium">"{transcript}"</p>}
+                                    </>
+                                ) : (
+                                    <Alert variant="destructive" className="w-full max-w-sm">
+                                        <AlertTriangle className="h-4 w-4" />
+                                        <AlertTitle>Microphone Access Required</AlertTitle>
+                                        <AlertDescription>
+                                            Please enable microphone permissions in your browser to use voice input.
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
                             </>
                         ) : (
-                            <p className="text-red-500">Speech recognition is not supported in this browser.</p>
+                            <Alert variant="destructive" className="w-full max-w-sm">
+                                <AlertTriangle className="h-4 w-4" />
+                                <AlertTitle>Unsupported Browser</AlertTitle>
+                                <AlertDescription>
+                                Speech recognition is not supported in this browser. Please try Google Chrome.
+                                </AlertDescription>
+                            </Alert>
                         )}
                          <FormField
                             control={form.control}
