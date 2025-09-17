@@ -33,15 +33,21 @@ export async function analyzeImageForHealthClaim(
 ): Promise<AnalyzeImageForHealthClaimOutput> {
   const { imageDataUri } = AnalyzeImageForHealthClaimInputSchema.parse(input);
 
+  // Construct credentials from environment variables
+  const credentials = {
+    client_email: process.env.GOOGLE_CLIENT_EMAIL,
+    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'), // Replace literal \n with actual newlines
+  };
+
+  if (!credentials.client_email || !credentials.private_key) {
+    throw new Error('Google Cloud service account credentials (GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY) are not set in environment variables.');
+  }
+
   // The 'eu-vision.googleapis.com' endpoint is generally available and a good default.
   const clientOptions = {
     apiEndpoint: 'eu-vision.googleapis.com',
-    key: process.env.GOOGLE_VISION_API_KEY,
+    credentials,
   };
-
-  if (!clientOptions.key) {
-    throw new Error('GOOGLE_VISION_API_KEY environment variable is not set.');
-  }
 
   const client = new ImageAnnotatorClient(clientOptions);
 
