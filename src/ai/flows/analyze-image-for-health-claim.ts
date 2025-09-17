@@ -9,7 +9,6 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'genkit';
 
 const AnalyzeImageForHealthClaimInputSchema = z.object({
@@ -38,7 +37,7 @@ const analyzeImageForHealthClaimPrompt = ai.definePrompt({
   name: 'analyzeImageForHealthClaimPrompt',
   input: { schema: AnalyzeImageForHealthClaimInputSchema },
   output: { schema: AnalyzeImageForHealthClaimOutputSchema },
-  model: 'gemini-2.5-flash',
+  model: 'googleai/gemini-2.5-flash',
   prompt: `You are an AI assistant tasked with extracting text from images containing health claims.
 
   Analyze the image provided and extract any text that represents a health claim.  Return ONLY the extracted text.
