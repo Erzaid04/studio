@@ -151,7 +151,7 @@ export function ClaimForm({ language, setLanguage, formAction, state }: ClaimFor
             <TabsTrigger value="image"><ImageIcon className="mr-2"/>Image</TabsTrigger>
         </TabsList>
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6 pt-8">
+            <form action={formAction} className="space-y-6 pt-8">
                 <div className="flex justify-between items-center">
                     <LanguageSwitcher language={language} setLanguage={setLanguage} />
                     <Button variant="outline" size="sm">
@@ -231,6 +231,15 @@ export function ClaimForm({ language, setLanguage, formAction, state }: ClaimFor
                         {form.getValues('claim') && !imageIsLoading && (
                              <p className="mt-4 text-sm font-medium text-green-600">Image text extracted. Ready to verify.</p>
                         )}
+                         <FormField
+                            control={form.control}
+                            name="claim"
+                            render={({ field }) => (
+                                <FormItem className="hidden">
+                                <FormControl><Input {...field} /></FormControl>
+                                </FormItem>
+                            )}
+                        />
                     </div>
                 </TabsContent>
 
