@@ -49,6 +49,7 @@ export function ClaimForm({ language, setLanguage, formAction, state }: ClaimFor
   const [imageIsLoading, setImageIsLoading] = useState(false);
   const [hasMicPermission, setHasMicPermission] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const form = useForm<z.infer<typeof claimSchema>>({
     resolver: zodResolver(claimSchema),
@@ -150,12 +151,15 @@ export function ClaimForm({ language, setLanguage, formAction, state }: ClaimFor
     }
   };
   
-  const onFormSubmit = (data: z.infer<typeof claimSchema>) => {
-    const formData = new FormData();
-    formData.append('claim', data.claim);
-    formData.append('language', data.language);
-    formAction(formData);
+  const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const isVald = await form.trigger();
+    if (isVald && formRef.current) {
+        const formData = new FormData(formRef.current);
+        formAction(formData);
+    }
   }
+
 
   return (
     <div className="bg-gradient-to-b from-green-50/20 to-transparent p-4 sm:p-8 rounded-2xl border shadow-sm">
@@ -167,7 +171,7 @@ export function ClaimForm({ language, setLanguage, formAction, state }: ClaimFor
             <TabsTrigger value="image"><ImageIcon className="mr-2"/>Image</TabsTrigger>
         </TabsList>
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6 pt-8">
+            <form ref={formRef} onSubmit={onFormSubmit} className="space-y-6 pt-8">
                 <div className="flex justify-between items-center">
                     <LanguageSwitcher language={language} setLanguage={setLanguage} />
                     <Button variant="outline" size="sm">
