@@ -50,7 +50,7 @@ export function ClaimForm({ onVerify }: ClaimFormProps) {
                 <Alert>
                   <AlertTitle>Feature In Development</AlertTitle>
                   <AlertDescription>
-                    Image upload functionality is part of the backend and has been disabled.
+                    Image upload functionality is for demonstration purposes.
                   </AlertDescription>
                 </Alert>
             </TabsContent>
@@ -58,7 +58,7 @@ export function ClaimForm({ onVerify }: ClaimFormProps) {
                 <Alert>
                   <AlertTitle>Feature In Development</AlertTitle>
                   <AlertDescription>
-                    Audio recording functionality is part of the backend and has been disabled.
+                    Audio recording functionality is for demonstration purposes.
                   </AlertDescription>
                 </Alert>
             </TabsContent>
