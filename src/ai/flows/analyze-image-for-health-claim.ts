@@ -9,6 +9,7 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'genkit';
 
 const AnalyzeImageForHealthClaimInputSchema = z.object({
@@ -42,6 +43,7 @@ const analyzeImageForHealthClaimPrompt = ai.definePrompt({
   Analyze the image provided and extract any text that represents a health claim.  Return ONLY the extracted text.
 
   Image: {{media url=imageDataUri}}`,
+  
 });
 
 const analyzeImageForHealthClaimFlow = ai.defineFlow(
@@ -51,7 +53,18 @@ const analyzeImageForHealthClaimFlow = ai.defineFlow(
     outputSchema: AnalyzeImageForHealthClaimOutputSchema,
   },
   async input => {
-    const { output } = await analyzeImageForHealthClaimPrompt(input);
+    const { output } = await ai.generate({
+        model: googleAI.model('gemini-2.5-flash'),
+        prompt: `You are an AI assistant tasked with extracting text from images containing health claims.
+
+        Analyze the image provided and extract any text that represents a health claim. Return ONLY the extracted text.
+      
+        Image: ${ {media: {url: input.imageDataUri}} }`,
+        output: {
+            schema: AnalyzeImageForHealthClaimOutputSchema
+        }
+    });
+
     return output!;
   }
 );
