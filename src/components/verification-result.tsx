@@ -3,13 +3,14 @@ import type { VerifyHealthClaimOutput } from '@/ai/flows/verify-health-claim';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle2, AlertTriangle, Lightbulb, BookOpen, ExternalLink, Activity, Volume2, Loader2, ShieldCheck, ShieldX, ShieldQuestion } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Lightbulb, BookOpen, ExternalLink, Activity, Volume2, Loader2, ShieldCheck, ShieldX, ShieldQuestion, RefreshCw } from 'lucide-react';
 import { Button } from './ui/button';
 import { useState, useRef, useEffect } from 'react';
 
 type VerificationResultProps = {
   result: VerifyHealthClaimOutput;
   audioDataUri?: string;
+  onReset: () => void;
 };
 
 const getTruthfulnessInfo = (status?: string): { badge: React.ReactNode; description: string } => {
@@ -53,7 +54,7 @@ const getTruthfulnessInfo = (status?: string): { badge: React.ReactNode; descrip
     }
 };
 
-export function VerificationResult({ result, audioDataUri }: VerificationResultProps) {
+export function VerificationResult({ result, audioDataUri, onReset }: VerificationResultProps) {
   const { status, truthfulness, tips, solution, sources } = result.verificationResult;
   const { badge, description: statusDescription } = getTruthfulnessInfo(status);
 
@@ -178,6 +179,13 @@ export function VerificationResult({ result, audioDataUri }: VerificationResultP
             )}
         </CardContent>
       </Card>
+
+      <div className="text-center pt-4">
+        <Button onClick={onReset} size="lg" variant="outline">
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Verify Another Claim
+        </Button>
+      </div>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -24,11 +25,12 @@ const claimSchema = z.object({
   language: z.enum(['en', 'hi'], { required_error: 'Please select a language.' }),
 });
 
-function SubmitButton() {
+function SubmitButton({ isPending }: { isPending: boolean }) {
   const { pending } = useFormStatus();
+  const isDisabled = isPending || pending;
   return (
-    <Button type="submit" size="lg" className="w-full font-semibold mt-6" disabled={pending}>
-      {pending ? (
+    <Button type="submit" size="lg" className="w-full font-semibold mt-6" disabled={isDisabled}>
+      {isDisabled ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Verifying...
         </>
@@ -42,9 +44,10 @@ type ClaimFormProps = {
     setLanguage: (lang: 'en' | 'hi') => void;
     formAction: (payload: FormData) => void;
     state: ClaimVerificationState;
+    isPending: boolean;
 }
 
-export function ClaimForm({ language, setLanguage, formAction, state }: ClaimFormProps) {
+export function ClaimForm({ language, setLanguage, formAction, state, isPending }: ClaimFormProps) {
   const { toast } = useToast();
   const [imageIsLoading, setImageIsLoading] = useState(false);
   const [hasMicPermission, setHasMicPermission] = useState(false);
@@ -153,9 +156,14 @@ export function ClaimForm({ language, setLanguage, formAction, state }: ClaimFor
   
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const isVald = await form.trigger();
-    if (isVald && formRef.current) {
+    const isValid = await form.trigger();
+    if (isValid && formRef.current) {
         const formData = new FormData(formRef.current);
+        // Manually set the claim value if the active tab is voice
+        const activeTab = document.querySelector('[role="tablist"] [data-state="active"]')?.getAttribute('data-value');
+        if (activeTab === 'voice' || activeTab === 'image') {
+            formData.set('claim', form.getValues('claim'));
+        }
         formAction(formData);
     }
   }
@@ -293,7 +301,7 @@ export function ClaimForm({ language, setLanguage, formAction, state }: ClaimFor
                 )}
                 />
                 
-                <SubmitButton />
+                <SubmitButton isPending={isPending} />
             </form>
         </Form>
         </Tabs>

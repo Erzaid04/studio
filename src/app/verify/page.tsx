@@ -5,15 +5,20 @@ import { useState } from 'react';
 import { Shield } from 'lucide-react';
 import { ClaimForm } from '@/components/claim-form';
 import { useActionState } from 'react';
-import { handleClaimVerification, ClaimVerificationState } from '@/lib/actions';
+import { handleClaimVerification, ClaimVerificationState, resetVerificationState } from '@/lib/actions';
 import { VerificationResult } from '@/components/verification-result';
 
 const initialState: ClaimVerificationState = { formKey: 0 };
 
-
 export default function VerifyPage() {
     const [language, setLanguage] = useState<'en' | 'hi'>('en');
-    const [state, formAction] = useActionState(handleClaimVerification, initialState);
+    const [state, formAction, isPending] = useActionState(handleClaimVerification, initialState);
+
+    const handleReset = async () => {
+        // This will effectively reset the `state` in this component
+        await resetVerificationState();
+        window.location.reload(); // Force a reload to ensure clean state
+    }
 
     return (
         <div className="flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8 pt-16">
@@ -36,13 +41,20 @@ export default function VerifyPage() {
                 
                 <div className="w-full max-w-3xl mx-auto">
                     {state?.result ? (
-                        <VerificationResult result={state.result} audioDataUri={state.audioDataUri} />
+                        <VerificationResult 
+                            key={state.formKey} 
+                            result={state.result} 
+                            audioDataUri={state.audioDataUri}
+                            onReset={handleReset} 
+                        />
                     ) : (
                         <ClaimForm
+                            key={state.formKey}
                             language={language}
                             setLanguage={setLanguage}
                             formAction={formAction}
                             state={state}
+                            isPending={isPending}
                         />
                     )}
                 </div>

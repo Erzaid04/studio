@@ -2,6 +2,7 @@
 'use server';
 
 import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
 import { analyzeImageForHealthClaim, AnalyzeImageForHealthClaimOutput } from '@/ai/flows/analyze-image-for-health-claim';
 import { verifyHealthClaim, VerifyHealthClaimOutput } from '@/ai/flows/verify-health-claim';
 import { textToSpeech } from '@/ai/flows/text-to-speech';
@@ -49,7 +50,6 @@ export async function handleClaimVerification(
 
     const { status, solution, truthfulness } = verificationResult.verificationResult;
     
-    // Create a concise summary for text-to-speech
     let textToSpeak = '';
     if (language === 'hi') {
         textToSpeak = `यह दावा ${status} है। ${solution || truthfulness || 'कोई विशेष समाधान प्रदान नहीं किया गया।'}`;
@@ -78,6 +78,11 @@ export async function handleClaimVerification(
   }
 }
 
+export async function resetVerificationState(): Promise<void> {
+    revalidatePath('/verify');
+}
+
+
 export type ImageAnalysisState = {
     result?: AnalyzeImageForHealthClaimOutput;
     error?: string;
@@ -99,3 +104,4 @@ export async function handleImageAnalysis(imageDataUri: string): Promise<ImageAn
     return { error: `Image analysis failed: ${errorMessage}` };
   }
 }
+
