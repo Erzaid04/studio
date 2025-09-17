@@ -1,15 +1,16 @@
+
 'use server';
 
 /**
- * @fileOverview Analyzes an image for health claims, extracts text using OCR, and prepares the text for verification.
+ * @fileOverview Analyzes an image for health claims using Google Cloud Vision OCR.
  *
  * - analyzeImageForHealthClaim - A function that handles the image analysis and text extraction process.
  * - AnalyzeImageForHealthClaimInput - The input type for the analyzeImageForHealthClaim function.
  * - AnalyzeImageForHealthClaimOutput - The return type for the analyzeImageForHealthClaim function.
  */
 
-import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
+import { ImageAnnotatorClient } from '@google-cloud/vision';
 
 const AnalyzeImageForHealthClaimInputSchema = z.object({
   imageDataUri: z
@@ -30,27 +31,48 @@ export type AnalyzeImageForHealthClaimOutput = z.infer<typeof AnalyzeImageForHea
 export async function analyzeImageForHealthClaim(
   input: AnalyzeImageForHealthClaimInput
 ): Promise<AnalyzeImageForHealthClaimOutput> {
-  return analyzeImageForHealthClaimFlow(input);
-}
+  const { imageDataUri } = AnalyzeImageForHealthClaimInputSchema.parse(input);
 
-const analyzeImageForHealthClaimFlow = ai.defineFlow(
-  {
-    name: 'analyzeImageForHealthClaimFlow',
-    inputSchema: AnalyzeImageForHealthClaimInputSchema,
-    outputSchema: AnalyzeImageForHealthClaimOutputSchema,
-  },
-  async ({ imageDataUri }) => {
-    const { output } = await ai.generate({
-      model: 'googleai/gemini-2.5-flash',
-      prompt: [
-        {text: `Extract all text from the following image. Return only the text.`},
-        {media: {url: imageDataUri}}
-      ],
-      output: {
-        schema: AnalyzeImageForHealthClaimOutputSchema,
-      },
-      retries: 3
-    });
-    return output!;
+  // The 'eu-vision.googleapis.com' endpoint is generally available and a good default.
+  const clientOptions = {
+    apiEndpoint: 'eu-vision.googleapis.com',
+    key: process.env.GOOGLE_VISION_API_KEY,
+  };
+
+  if (!clientOptions.key) {
+    throw new Error('GOOGLE_VISION_API_KEY environment variable is not set.');
   }
-);
+
+  const client = new ImageAnnotatorClient(clientOptions);
+
+  // Extracts the Base64 content from the data URI
+  const base64Image = imageDataUri.split(';base64,').pop();
+
+  if (!base64Image) {
+    throw new Error('Invalid image data URI format.');
+  }
+
+  const request = {
+    image: {
+      content: base64Image,
+    },
+    features: [{ type: 'TEXT_DETECTION' }],
+  };
+
+  try {
+    const [result] = await client.textDetection(request);
+    const detections = result.textAnnotations;
+    const extractedText = detections?.[0]?.description?.trim() || '';
+
+    if (!extractedText) {
+      // Return a structured output even if no text is found
+      return { extractedText: 'No text could be extracted from the image. Please try a clearer image.' };
+    }
+
+    return { extractedText };
+  } catch (error) {
+    console.error('Google Cloud Vision API error:', error);
+    // It's better to throw the error to be handled by the calling action
+    throw new Error('Failed to analyze image with Google Cloud Vision.');
+  }
+}
