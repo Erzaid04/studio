@@ -4,14 +4,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShieldIcon } from '@/components/icons';
-import { Home, ShieldCheck, History, Info, Check } from 'lucide-react';
+import { Home, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/verify', icon: ShieldCheck, label: 'Verify Health Claims' },
-  { href: '#', icon: History, label: 'Verification History' },
-  { href: '#', icon: Info, label: 'About' },
 ];
 
 export function Sidebar() {
@@ -59,19 +57,19 @@ export function Sidebar() {
         <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Trusted Sources</h2>
         <ul className="space-y-1 text-sm text-muted-foreground">
           <li className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-500" />
+            <ShieldCheck className="h-4 w-4 text-green-500" />
             <span>World Health Organization</span>
           </li>
           <li className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-500" />
+            <ShieldCheck className="h-4 w-4 text-green-500" />
             <span>Indian Council of Medical Research</span>
           </li>
            <li className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-500" />
+            <ShieldCheck className="h-4 w-4 text-green-500" />
             <span>Ministry of Ayush</span>
           </li>
            <li className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-500" />
+            <ShieldCheck className="h-4 w-4 text-green-500" />
             <span>Verified Medical Journals</span>
           </li>
         </ul>
